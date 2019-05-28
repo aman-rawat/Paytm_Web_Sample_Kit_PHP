@@ -56,7 +56,7 @@
 		{ 
 		?>
 		<h2>Response of status query:</h2>
-		<table style="border: 1px solid nopadding" border="0">
+		<table style="border: 1px solid" border="0">
 			<tbody>
 				<?php
 					foreach($responseParamList as $paramName => $paramValue) {

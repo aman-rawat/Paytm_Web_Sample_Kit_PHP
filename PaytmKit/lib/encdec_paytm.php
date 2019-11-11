@@ -64,7 +64,7 @@ function getChecksumFromString($str, $key)
     return $checksum;
 }
 
-function verifyChecksum_e($arrayList, $key, $checksumvalue)
+function verifychecksum_e($arrayList, $key, $checksumvalue)
 {
     $arrayList = removeCheckSumParam($arrayList);
     ksort($arrayList);
@@ -77,15 +77,15 @@ function verifyChecksum_e($arrayList, $key, $checksumvalue)
     $website_hash = hash("sha256", $finalString);
     $website_hash .= $salt;
 
-    $validFlag = "FALSE";
     if ($website_hash == $paytm_hash) {
         $validFlag = "TRUE";
+    } else {
+        $validFlag = "FALSE";
     }
-
     return $validFlag;
 }
 
-function verifyChecksum_eFromStr($str, $key, $checksumvalue)
+function verifychecksum_eFromStr($str, $key, $checksumvalue)
 {
     $paytm_hash = decrypt_e($checksumvalue, $key);
     $salt = substr($paytm_hash, -4);
@@ -95,11 +95,11 @@ function verifyChecksum_eFromStr($str, $key, $checksumvalue)
     $website_hash = hash("sha256", $finalString);
     $website_hash .= $salt;
 
-    $validFlag = "FALSE";
     if ($website_hash == $paytm_hash) {
         $validFlag = "TRUE";
+    } else {
+        $validFlag = "FALSE";
     }
-
     return $validFlag;
 }
 
@@ -145,7 +145,6 @@ function redirect2PG($paramList, $key)
 {
     $hashString = getchecksumFromArray($paramList, $key);
     $checksum = encrypt_e($hashString, $key);
-    return $checksum;
 }
 
 function removeCheckSumParam($arrayList)
@@ -163,7 +162,7 @@ function getTxnStatus($requestParamList)
 
 function getTxnStatusNew($requestParamList)
 {
-    return callNewAPI(PAYTM_STATUS_QUERY_NEW_URL, $requestParamList);
+    return callAPI(PAYTM_STATUS_QUERY_NEW_URL, $requestParamList);
 }
 
 function initiateTxnRefund($requestParamList)
@@ -187,25 +186,6 @@ function callAPI($apiURL, $requestParamList)
             'Content-Type: application/json',
             'Content-Length: ' . strlen($postData))
     );
-    $jsonResponse = curl_exec($ch);
-    $responseParamList = json_decode($jsonResponse, true);
-    return $responseParamList;
-}
-
-function callNewAPI($apiURL, $requestParamList)
-{
-    $JsonData = json_encode($requestParamList);
-    $postData = 'JsonData=' . urlencode($JsonData);
-    $ch = curl_init($apiURL);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($postData)
-    ));
     $jsonResponse = curl_exec($ch);
     $responseParamList = json_decode($jsonResponse, true);
     return $responseParamList;
@@ -246,20 +226,7 @@ function getRefundArray2Str($arrayList)
     return $paramStr;
 }
 
-function callRefundAPI($refundApiURL, $requestParamList)
+function callRefundAPI($requestParamList)
 {
-    $JsonData = json_encode($requestParamList);
-    $postData = 'JsonData=' . urlencode($JsonData);
-    $ch = curl_init($refundApiURL);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $headers = array();
-    $headers[] = 'Content-Type: application/json';
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    $jsonResponse = curl_exec($ch);
-    $responseParamList = json_decode($jsonResponse, true);
-    return $responseParamList;
+    return callAPI(PAYTM_REFUND_URL, $requestParamList);
 }
